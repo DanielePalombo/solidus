@@ -4,10 +4,10 @@ require 'rails_helper'
 
 module Spree::Stock
   RSpec.describe Availability do
-    let(:variants) { Spree::Variant.all.to_a }
+    let(:line_items) { Spree::LineItem.all.to_a }
     let(:infinity) { Float::INFINITY }
 
-    let(:availability) { described_class.new(variants: variants) }
+    let(:availability) { described_class.new(line_items: line_items) }
 
     let!(:stock_location1) { create(:stock_location) }
 
@@ -16,22 +16,23 @@ module Spree::Stock
     describe "#on_hand_by_stock_location_id" do
       subject { availability.on_hand_by_stock_location_id }
 
-      context 'with a single variant' do
-        let!(:variant) { create(:master_variant) }
+      context 'with a single line_item' do
+        let(:variant) { create(:master_variant) }
         let(:stock_item) { variant.stock_items[0] }
+        let!(:line_item) { create(:line_item, variant: variant) }
 
         context 'with count_on_hand positive' do
           before { stock_item.set_count_on_hand(2) }
 
           it "returns the correct value" do
-            expect(subject).to eq(stock_location1.id => Spree::StockQuantities.new(variant => 2))
+            expect(subject).to eq(stock_location1.id => Spree::StockQuantities.new(line_item => 2))
           end
 
           context 'and backorderable false' do
             before { stock_item.update!(backorderable: false) }
 
             it "returns the correct value" do
-              expect(subject).to eq(stock_location1.id => Spree::StockQuantities.new(variant => 2))
+              expect(subject).to eq(stock_location1.id => Spree::StockQuantities.new(line_item => 2))
             end
           end
         end
@@ -40,7 +41,7 @@ module Spree::Stock
           before { stock_item.set_count_on_hand(0) }
 
           it "returns zero on_hand" do
-            expect(subject).to eq(stock_location1.id => Spree::StockQuantities.new(variant => 0))
+            expect(subject).to eq(stock_location1.id => Spree::StockQuantities.new(line_item => 0))
           end
         end
 
@@ -48,7 +49,7 @@ module Spree::Stock
           before { stock_item.set_count_on_hand(-1) }
 
           it "returns zero on_hand" do
-            expect(subject).to eq(stock_location1.id => Spree::StockQuantities.new(variant => 0))
+            expect(subject).to eq(stock_location1.id => Spree::StockQuantities.new(line_item => 0))
           end
         end
 
@@ -72,7 +73,7 @@ module Spree::Stock
           before { variant.update!(track_inventory: false) }
 
           it "has infinite inventory " do
-            expect(subject).to eq(stock_location1.id => Spree::StockQuantities.new(variant => infinity))
+            expect(subject).to eq(stock_location1.id => Spree::StockQuantities.new(line_item => infinity))
           end
         end
 
@@ -80,7 +81,7 @@ module Spree::Stock
           before { stub_spree_preferences(track_inventory_levels: false) }
 
           it "has infinite inventory " do
-            expect(subject).to eq(stock_location1.id => Spree::StockQuantities.new(variant => infinity))
+            expect(subject).to eq(stock_location1.id => Spree::StockQuantities.new(line_item => infinity))
           end
         end
       end
@@ -89,9 +90,10 @@ module Spree::Stock
     describe "#backorderable_by_stock_location_id" do
       subject { availability.backorderable_by_stock_location_id }
 
-      context 'with a single variant' do
-        let!(:variant) { create(:master_variant) }
+      context 'with a single line_item' do
+        let(:variant) { create(:master_variant) }
         let(:stock_item) { variant.stock_items[0] }
+        let!(:line_item) { create(:line_item, variant: variant) }
 
         context 'with backorderable false' do
           before { stock_item.update!(backorderable: false) }
@@ -112,17 +114,17 @@ module Spree::Stock
 
           context 'and positive count_on_hand' do
             before { stock_item.set_count_on_hand(2) }
-            it { is_expected.to eq(stock_location1.id => Spree::StockQuantities.new(variant => infinity)) }
+            it { is_expected.to eq(stock_location1.id => Spree::StockQuantities.new(line_item => infinity)) }
           end
 
           context 'and 0 count_on_hand' do
             before { stock_item.set_count_on_hand(0) }
-            it { is_expected.to eq(stock_location1.id => Spree::StockQuantities.new(variant => infinity)) }
+            it { is_expected.to eq(stock_location1.id => Spree::StockQuantities.new(line_item => infinity)) }
           end
 
           context 'and negative count_on_hand' do
             before { stock_item.set_count_on_hand(-1) }
-            it { is_expected.to eq(stock_location1.id => Spree::StockQuantities.new(variant => infinity)) }
+            it { is_expected.to eq(stock_location1.id => Spree::StockQuantities.new(line_item => infinity)) }
           end
         end
 

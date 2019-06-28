@@ -31,10 +31,10 @@ module Spree
         sorted_stock_locations = Spree::Config.stock.location_sorter_class.new(filtered_stock_locations).sort
         @stock_locations = sorted_stock_locations
 
-        @inventory_units_by_variant = @inventory_units.group_by(&:variant)
-        @desired = Spree::StockQuantities.new(@inventory_units_by_variant.transform_values(&:count))
+        @inventory_units_by_line_item = @inventory_units.group_by(&:line_item)
+        @desired = Spree::StockQuantities.new(@inventory_units_by_line_item.transform_values(&:count))
         @availability = Spree::Stock::Availability.new(
-          variants: @desired.variants,
+          line_items: @desired.line_items,
           stock_locations: @stock_locations
         )
 
@@ -114,9 +114,8 @@ module Spree
       end
 
       def get_units(quantities)
-        # Change our raw quantities back into inventory units
-        quantities.flat_map do |variant, quantity|
-          @inventory_units_by_variant[variant].shift(quantity)
+        quantities.flat_map do |line_item, quantity|
+          @inventory_units_by_line_item[line_item].shift(quantity)
         end
       end
     end
