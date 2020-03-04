@@ -381,6 +381,7 @@ module Spree
       it "cannot transition to address without a line item" do
         order.line_items.delete_all
         order.update_column(:email, "spree@example.com")
+        expect(Spree::Deprecation).to receive(:warn).with(template_deprecation_error)
         put spree.next_api_checkout_path(order), params: { order_token: order.guest_token }
         expect(response.status).to eq(422)
         expect(json_response["errors"]["base"]).to include(I18n.t('spree.there_are_no_items_for_this_order'))
@@ -428,6 +429,7 @@ module Spree
 
         it "returns a sensible error when no payment method is specified" do
           # put :complete, id: order.to_param, order_token: order.token, order: {}
+          expect(Spree::Deprecation).to receive(:warn).with(template_deprecation_error)
           subject
           expect(json_response["errors"]["base"]).to include(I18n.t('spree.no_payment_found'))
         end
