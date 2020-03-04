@@ -4,6 +4,11 @@ require 'spec_helper'
 
 module Spree
   describe Api::CheckoutsController, type: :request do
+    let(:template_deprecation_error) do
+      'app/views/spree/api/orders/could_not_transition.json.jbuilder is deprecated' \
+      ' Please use app/views/spree/api/errors/could_not_transition.json.jbuilder'
+    end
+
     before(:each) do
       stub_authentication!
       stub_spree_preferences(track_inventory_levels: false)
@@ -101,6 +106,7 @@ module Spree
         # Regression Spec for https://github.com/spree/spree/issues/5389 and https://github.com/spree/spree/issues/5880
         it "can update addresses but not transition to delivery w/o shipping setup" do
           Spree::ShippingMethod.all.each(&:really_destroy!)
+          expect(Spree::Deprecation).to receive(:warn).with(template_deprecation_error)
           put spree.api_checkout_path(order),
             params: { order_token: order.guest_token, order: {
               bill_address_attributes: address,
@@ -393,7 +399,7 @@ module Spree
           state: 'address',
           email: nil
         )
-
+        expect(Spree::Deprecation).to receive(:warn).with(template_deprecation_error)
         put spree.next_api_checkout_path(order), params: { id: order.to_param, order_token: order.guest_token }
         expect(response.status).to eq(422)
         expect(json_response['error']).to match(/could not be transitioned/)
@@ -434,6 +440,20 @@ module Spree
             subject
             expect(response.status).to eq(400)
             expect(json_response['errors']['expected_total']).to include(I18n.t('spree.api.order.expected_total_mismatch'))
+          end
+        end
+
+        context 'when cannot complete' do
+          let(:order) { create(:order) }
+
+          before { order.update(state: 'cart') }
+
+          it 'returns a state machine error' do
+            expect(Spree::Deprecation).to receive(:warn).with(template_deprecation_error)
+            subject
+
+            expect(json_response['error']).to eq(I18n.t(:could_not_transition, scope: "spree.api", resource: 'order'))
+            expect(response.status).to eq(422)
           end
         end
       end
