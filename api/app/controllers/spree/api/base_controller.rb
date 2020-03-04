@@ -28,6 +28,7 @@ module Spree
       rescue_from ActiveRecord::RecordNotFound, with: :not_found
       rescue_from CanCan::AccessDenied, with: :unauthorized
       rescue_from Spree::Core::GatewayError, with: :gateway_error
+      rescue_from StateMachines::InvalidTransition, with: :invalid_transition
 
       helper Spree::Api::ApiHelpers
 
@@ -187,6 +188,17 @@ module Spree
 
       def default_per_page
         Kaminari.config.default_per_page
+      end
+
+      def invalid_transition(error)
+        logger.error("invalid_transition #{error.event} from #{error.from} for #{error.object.class.name}. Error: #{error.inspect}")
+        if error.object.is_a? Spree::Order
+          Spree::Deprecation.warn(
+            'app/views/spree/api/orders/could_not_transition.json.jbuilder is deprecated' \
+            ' Please use app/views/spree/api/errors/could_not_transition.json.jbuilder'
+          )
+        end
+        render "spree/api/errors/could_not_transition", locals: { resource: error.object }, status: :unprocessable_entity
       end
     end
   end

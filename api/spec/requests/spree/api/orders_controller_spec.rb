@@ -24,6 +24,10 @@ module Spree
       user.generate_spree_api_key!
       user
     end
+    let(:template_deprecation_error) do
+      'app/views/spree/api/orders/could_not_transition.json.jbuilder is deprecated' \
+      ' Please use app/views/spree/api/errors/could_not_transition.json.jbuilder'
+    end
 
     before do
       stub_authentication!
@@ -882,6 +886,15 @@ module Spree
           put spree.api_order_path(order), params: { order: { user_id: user.id } }
           expect(response.status).to eq 200
           expect(json_response["user_id"]).to eq(user.id)
+        end
+
+        it "cannot cancel not completed order" do
+          expect(Spree::Deprecation).to receive(:warn).with(template_deprecation_error)
+
+          put spree.cancel_api_order_path(order)
+
+          expect(json_response['error']).to eq(I18n.t(:could_not_transition, scope: "spree.api", resource: 'order'))
+          expect(response.status).to eq(422)
         end
       end
 
