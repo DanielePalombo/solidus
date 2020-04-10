@@ -1,0 +1,13 @@
+{{#if all_items_selected}}
+  All Items Selected
+{{else}}
+  {{#if no_item_selected}}
+    No Items Selected
+  {{else}}
+    {{#if one_item_selected}}
+      1 Item Selected
+    {{else}}
+      {{selected_item_count}} Items Selected
+    {{/if}}
+  {{/if}}
+{{/if}}
