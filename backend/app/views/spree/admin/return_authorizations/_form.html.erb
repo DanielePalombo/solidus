@@ -1,7 +1,7 @@
 <% allow_return_item_changes = !@return_authorization.customer_returned_items? %>
 
 <div data-hook="admin_return_authorization_form_fields">
-  <table class="index return-items-table">
+  <table class="index return-items-table selectable-table">
     <thead>
       <tr data-hook="rma_header">
         <th class="return-item-checkbox">
@@ -27,7 +27,7 @@
           <td class="return-item-checkbox inventory-unit-checkbox">
             <% if editable %>
               <%= item_fields.hidden_field :inventory_unit_id %>
-              <%= item_fields.check_box :_destroy, {checked: return_item.persisted?, class: 'add-item', "data-price" => return_item.amount}, '0', '1' %>
+              <%= item_fields.check_box :_destroy, {checked: return_item.persisted?, class: 'selectable add-item', "data-price" => return_item.amount}, '0', '1' %>
             <% end %>
           </td>
           <td class="return-item-product">
@@ -73,11 +73,16 @@
         </tr>
       <% end %>
     </tbody>
+    <tfoot>
+      <tr class="selectable-header">
+        <th class="selectable-label" colspan="2">
+        </th>
+        <td colspan="6" class="text-right">
+          <%= t('spree.total_pre_tax_refund') %>: <span id="total_pre_tax_refund">0.00</span>
+        </td>
+      </tr>
+    </tfoot>
   </table>
-
-  <%= f.field_container :amount do %>
-    <%= t('spree.total_pre_tax_refund') %>: <span id="total_pre_tax_refund">0.00</span>
-  <% end %>
 
   <%= f.field_container :stock_location do %>
     <%= f.label :stock_location_id, Spree::StockLocation.model_name.human %>

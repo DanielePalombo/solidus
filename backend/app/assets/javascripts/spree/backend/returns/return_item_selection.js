@@ -21,12 +21,7 @@ Spree.ready(function() {
   if(formFields.length > 0) {
     updateSuggestedAmount();
 
-    formFields.find('input#select-all').on('change', function(ev) {
-      var checkBoxes = $(ev.currentTarget).parents('table:first').find('input.add-item');
-      checkBoxes.prop('checked', this.checked);
-      updateSuggestedAmount();
-    });
-
+    formFields.find('input#select-all').on('change', updateSuggestedAmount);
     formFields.find('input.add-item').on('change', updateSuggestedAmount);
     formFields.find('.refund-amount-input').on('keyup', updateSuggestedAmount);
 
