@@ -23,6 +23,7 @@ Spree.ready(function() {
 
     formFields.find('input#select-all').on('change', updateSuggestedAmount);
     formFields.find('input.add-item').on('change', updateSuggestedAmount);
+
     formFields.find('.refund-amount-input').on('keyup', updateSuggestedAmount);
 
     formFields.find('input, select').not('.add-item').on('change', checkAddItemBox);

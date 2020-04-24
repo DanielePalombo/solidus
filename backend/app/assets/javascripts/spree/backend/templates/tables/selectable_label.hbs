@@ -1,13 +1,20 @@
-{{#if all_items_selected}}
-  All Items Selected
-{{else}}
-  {{#if no_item_selected}}
-    No Items Selected
-  {{else}}
-    {{#if one_item_selected}}
-      1 Item Selected
+<tr>
+  <th>
+    <input type="checkbox" {{#if all_items_selected}}checked="checked"{{/if}} name="select-all" id="select-all" value="1">
+  </th>
+  <th colspan="{{colspan}}">
+    {{#if all_items_selected}}
+      All Items Selected
     {{else}}
-      {{selected_item_count}} Items Selected
+      {{#if no_item_selected}}
+        No Items Selected
+      {{else}}
+        {{#if one_item_selected}}
+          1 Item Selected
+        {{else}}
+          {{selected_item_count}} Items Selected
+        {{/if}}
+      {{/if}}
     {{/if}}
-  {{/if}}
-{{/if}}
+  </th>
+</tr>

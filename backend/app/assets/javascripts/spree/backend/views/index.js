@@ -25,4 +25,4 @@
 //= require 'spree/backend/views/tables/editable_table'
 //= require 'spree/backend/views/tables/editable_table_row'
 //= require 'spree/backend/views/tables/selectable_table'
-//= require 'spree/backend/views/tables/selectable_header'
+//= require 'spree/backend/views/tables/selectable_table_summary'
