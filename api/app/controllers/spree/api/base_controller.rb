@@ -192,12 +192,6 @@ module Spree
 
       def invalid_transition(error)
         logger.error("invalid_transition #{error.event} from #{error.from} for #{error.object.class.name}. Error: #{error.inspect}")
-        if error.object.is_a? Spree::Order
-          Spree::Deprecation.warn(
-            'app/views/spree/api/orders/could_not_transition.json.jbuilder is deprecated' \
-            ' Please use app/views/spree/api/errors/could_not_transition.json.jbuilder'
-          )
-        end
         render "spree/api/errors/could_not_transition", locals: { resource: error.object }, status: :unprocessable_entity
       end
     end
