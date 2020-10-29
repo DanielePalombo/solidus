@@ -116,17 +116,9 @@ module Spree
       end
 
       def after_update_attributes
-        if params[:order] && params[:order][:coupon_code].present?
-          Spree::Deprecation.warn('This method is deprecated. Please use `Spree::Api::CouponCodesController#create` endpoint instead.')
-          handler = PromotionHandler::Coupon.new(@order)
-          handler.apply
-
-          if handler.error.present?
-            @coupon_message = handler.error
-            respond_with(@order, default_template: 'spree/api/orders/could_not_apply_coupon', status: 422)
-            return true
-          end
-        end
+        # TODO 3.0: do we want to remove this method at all since it's empty?
+        # Someone may have overridden it adding their logic and this would
+        # break updating the order.
         false
       end
 
